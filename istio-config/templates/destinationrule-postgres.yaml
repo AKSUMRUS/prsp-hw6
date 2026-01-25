@@ -1,0 +1,13 @@
+{{- if .Values.serviceEntry.postgres.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: muffin-postgres
+  namespace: muffin
+spec:
+  host: {{ .Values.serviceEntry.postgres.host | default "host.docker.internal" }}
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+{{- end }}
+

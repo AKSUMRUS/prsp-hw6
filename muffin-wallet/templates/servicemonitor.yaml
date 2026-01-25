@@ -1,0 +1,20 @@
+{{- if .Values.metrics.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: muffin-wallet
+  labels:
+    {{- include "muffin-wallet.labels" . | nindent 4 }}
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "muffin-wallet.resource-name" . }}
+  endpoints:
+    - port: http
+      path: {{ .Values.metrics.serviceMonitor.path | default "/actuator/prometheus" }}
+      interval: {{ .Values.metrics.serviceMonitor.interval | default "15s" }}
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+{{- end }}

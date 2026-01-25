@@ -1,0 +1,42 @@
+namespace:
+  create: true
+  name: muffin
+
+gateway:
+  enabled: true
+  host: wallet.example.com
+
+authorizationPolicy:
+  currency:
+    enabled: true
+    allowedPrincipals:
+      - cluster.local/ns/muffin/sa/muffin-wallet
+
+virtualServices:
+  wallet:
+    enabled: true
+  currency:
+    enabled: true
+
+serviceEntry:
+  postgres:
+    enabled: true
+    host: host.minikube.internal
+    port: 5432
+    address: ""
+    resolution: DNS
+    location: MESH_EXTERNAL
+
+peerAuthentication:
+  enabled: true
+  mode: STRICT
+
+destinationRules:
+  wallet:
+    enabled: true
+  currency:
+    enabled: true
+
+prometheus:
+  serviceMonitor:
+    enabled: true

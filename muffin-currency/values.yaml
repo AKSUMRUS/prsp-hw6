@@ -1,0 +1,39 @@
+# Values for muffin-currency chart
+replicaCount: 1
+
+version: v1
+
+image:
+  repository: aadan1lov/muffin-currency
+  tag: "1.0.0"
+
+appLabel: "muffin-currency"
+
+containerPorts:
+  - port: 8080
+
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /rate?from=PLAIN&to=CHOKOLATE
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /rate?from=PLAIN&to=CHOKOLATE
+    port: 8080
+  initialDelaySeconds: 2
+  periodSeconds: 5
+
+service:
+  type: ClusterIP
+  port: 8083
+  targetPort: 8080
+  ports:
+    - protocol: TCP
+      port: 8083
+      targetPort: 8080

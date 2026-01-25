@@ -1,0 +1,36 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # 1. Muffin-currency через NodePort
+  # - job_name: 'muffin-currency'
+  #   static_configs:
+  #     - targets: ['localhost:8080']  # Замените на реальный IP
+  #       labels:
+  #         namespace: 'muffin'
+  #   metrics_path: '/actuator/prometheus'
+  #   scrape_interval: 30s
+  #   scrape_timeout: 15s
+
+  - job_name: 'muffin-wallet'
+    static_configs:
+      - targets: ['muffin-wallet.local']
+        labels:
+          namespace: 'muffin'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 30s
+    scrape_timeout: 15s
+
+  # 3. PostgreSQL экспортер (ВАЖНО: добавить этот job)
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  # 4. Сам Prometheus
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

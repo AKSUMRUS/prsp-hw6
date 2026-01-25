@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.configMaps.env.name }}
+  labels:
+    {{ include "muffin-wallet.labels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.configMaps.env.data }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.configMaps.application.name }}
+  labels:
+    {{ include "muffin-wallet.labels" . | nindent 4 }}
+data:
+  application.yaml: |
+{{ .Values.configMaps.application.applicationYaml | indent 4 }}
+

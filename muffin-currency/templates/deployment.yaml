@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "muffin-currency.resource-name" . }}
+  labels:
+    {{ include "muffin-currency.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{ include "muffin-currency.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{ include "muffin-currency.selector" . | nindent 8 }}
+        version: {{ .Values.version | default "v1" }}
+      # annotations:
+      #   sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: {{ .Values.appLabel }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        ports:
+        - containerPort: {{ (index .Values.containerPorts 0).port }}
+        {{ include "muffin-currency.liveness" . | nindent 8 }}
+        {{ include "muffin-currency.readiness" . | nindent 8 }}

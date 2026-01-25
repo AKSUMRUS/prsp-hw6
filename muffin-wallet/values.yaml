@@ -1,0 +1,104 @@
+replicaCount: 1
+
+appLabel: muffin-wallet
+
+version: v1
+
+serviceAccount:
+  name: muffin-wallet
+
+image:
+  repository: aadan1lov/muffin-wallet
+  tag: "1.1.0"
+  pullPolicy: Always
+
+containerPort: 8081
+
+service:
+  type: NodePort
+  port: 80
+  targetPort: 8081
+
+volume:
+  name: application-config-volume
+  configMapName: muffin-wallet
+  mountPath: /app/config
+
+envFrom:
+  secrets:
+    - muffin-wallet
+  configMaps:
+    - muffin-wallet-env
+
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8081
+  initialDelaySeconds: 150
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8081
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+secret:
+  name: muffin-wallet
+  data:
+    SPRING_DATASOURCE_PASSWORD: bXVmZmluLXdhbGxldA==
+configMaps:
+  env:
+    name: muffin-wallet-env
+    data:
+      JDK_JAVA_OPTIONS: -Dspring.config.additional-location=/app/config/application.yaml
+  application:
+    name: muffin-wallet
+    applicationYaml: |-
+      ---
+      server:
+        port: 8081
+      spring:
+        datasource:
+          url: jdbc:postgresql://host.minikube.internal:5432/muffin_wallet
+          username: muffin-wallet
+      currency:
+        service:
+          url: http://muffin-currency:8083/rate
+      management:
+        endpoints:
+          web:
+            exposure:
+              include: health, info, prometheus, metrics
+        endpoint:
+          health:
+            probes:
+              enabled: true
+            show-details: always
+        metrics:
+          export:
+            prometheus:
+              enabled: true
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+    path: /actuator/prometheus
+
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: muffin-wallet.local
+      paths:
+        - path: /
+          pathType: Prefix

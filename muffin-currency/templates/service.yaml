@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "muffin-currency.resource-name" . }}
+  labels:
+    {{ include "muffin-currency.labels" . | nindent 4 }}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/actuator/prometheus"
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+    - name: http-envoy-prom
+      port: 15090
+      targetPort: 15090
+      protocol: TCP
+  selector:
+    {{ include "muffin-currency.selector" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: muffin-currency-metrics
+  namespace: muffin
+spec:
+  selector:
+    app: muffin-currency
+  ports:
+  - name: metrics
+    port: 8083
+    targetPort: 8083
+    nodePort: 30083  # Будет доступен на всех нодах
+  type: NodePort

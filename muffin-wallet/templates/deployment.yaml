@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "muffin-wallet.resource-name" . }}
+  labels:
+    {{ include "muffin-wallet.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{ include "muffin-wallet.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{ include "muffin-wallet.selector" . | nindent 8 }}
+        version: {{ .Values.version | default "v1" }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name | default (include "muffin-wallet.resource-name" .) }}
+      volumes:
+        - name: {{ .Values.volume.name }}
+          configMap:
+            name: {{ .Values.volume.configMapName }}
+      containers:
+      - name: {{ .Values.appLabel }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.containerPort }}
+        volumeMounts:
+          - name: {{ .Values.volume.name }}
+            mountPath: {{ .Values.volume.mountPath }}
+        envFrom:
+          {{- range .Values.envFrom.secrets }}
+          - secretRef:
+              name: {{ . }}
+          {{- end }}
+          {{- range .Values.envFrom.configMaps }}
+          - configMapRef:
+              name: {{ . }}
+          {{- end }}
+        {{ include "muffin-wallet.liveness" . | nindent 8 }}
+        {{ include "muffin-wallet.readiness" . | nindent 8 }}
