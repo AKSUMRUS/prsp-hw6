@@ -1,5 +1,0 @@
-apiVersion: v2
-name: istio-config
-description: Istio configuration for muffin services
-type: application
-version: 0.1.0

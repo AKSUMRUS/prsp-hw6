@@ -34,5 +34,4 @@ spec:
   - name: metrics
     port: 8083
     targetPort: 8083
-    nodePort: 30083  # Будет доступен на всех нодах
   type: NodePort

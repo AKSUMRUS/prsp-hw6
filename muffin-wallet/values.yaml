@@ -18,6 +18,7 @@ service:
   type: NodePort
   port: 80
   targetPort: 8081
+  nodePort: 30090
 
 volume:
   name: application-config-volume
@@ -86,6 +87,17 @@ configMaps:
           export:
             prometheus:
               enabled: true
+          distribution:
+            percentiles-histogram:
+              http.server.requests: true
+            sla:
+              http.server.requests: 100ms, 200ms, 500ms, 1s, 2s
+          web:
+            server:
+              request:
+                autotime:
+                  enabled: true
+                  percentiles: 0.5, 0.95, 0.99
 
 metrics:
   enabled: true

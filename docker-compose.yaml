@@ -17,22 +17,6 @@ services:
       timeout: 5s
       retries: 5
 
-  postgres-exporter:
-    image: prometheuscommunity/postgres-exporter:latest
-    container_name: muffin-postgres-exporter
-    environment:
-      DATA_SOURCE_NAME: "postgresql://muffin-wallet:muffin-wallet@postgres:5432/muffin_wallet?sslmode=disable"
-      PG_EXPORTER_EXTEND_QUERY_PATH: /etc/postgres-exporter/queries.yaml
-    ports:
-      - "9187:9187"
-    volumes:
-      - ./postgres-queries.yaml:/etc/postgres-exporter/queries.yaml
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - muffin-network
-
 networks:
   muffin-network:
     driver: bridge
