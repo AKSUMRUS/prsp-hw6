@@ -17,6 +17,12 @@ spec:
       # annotations:
       #   sidecar.istio.io/inject: "true"
     spec:
+      volumes:  
+      - name: app-logs
+        emptyDir: {}
+      - name: promtail-config
+        configMap:
+          name: promtail-config-currency
       containers:
       - name: {{ .Values.appLabel }}
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
@@ -24,3 +30,16 @@ spec:
         - containerPort: {{ (index .Values.containerPorts 0).port }}
         {{ include "muffin-currency.liveness" . | nindent 8 }}
         {{ include "muffin-currency.readiness" . | nindent 8 }}
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+      - name: promtail
+        image: grafana/promtail:latest
+        args:
+          - -config.file=/etc/promtail/promtail.yaml
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+          - name: promtail-config
+            mountPath: /etc/promtail/promtail.yaml
+            subPath: promtail.yaml

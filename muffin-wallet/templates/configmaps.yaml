@@ -18,4 +18,42 @@ metadata:
 data:
   application.yaml: |
 {{ .Values.configMaps.application.applicationYaml | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: promtail-config
+  namespace: muffin
+data:
+  promtail.yaml: |
+    server:
+      http_listen_port: 3101
+      grpc_listen_port: 0
+
+    positions:
+      filename: /tmp/positions.yaml
+
+    clients:
+      - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+
+    scrape_configs:
+      - job_name: app-logs
+
+        pipeline_stages:
+          - regex:
+              expression: '\[(?P<traceId>[a-f0-9]{16,32})-[a-f0-9]+\]'
+          - labels:
+              traceId:
+          - regex:
+              expression: '(?P<logLevel>INFO|ERROR|WARN|DEBUG)'
+          - labels:
+              logLevel:
+
+        static_configs:
+          - targets:
+              - localhost
+            labels:
+              job: muffin-wallet
+              __path__: /logs/*.log
+
 

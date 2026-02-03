@@ -8,8 +8,8 @@ serviceAccount:
   name: muffin-wallet
 
 image:
-  repository: aadan1lov/muffin-wallet
-  tag: "1.1.0"
+  repository: aksumshevkevich/muffin-wallet
+  tag: "latest"
   pullPolicy: Always
 
 containerPort: 8081
@@ -20,10 +20,15 @@ service:
   targetPort: 8081
   nodePort: 30090
 
-volume:
-  name: application-config-volume
-  configMapName: muffin-wallet
-  mountPath: /app/config
+# volumes:
+#   - name: application-config-volume
+#     configMapName: muffin-wallet
+#     mountPath: /app/config
+#   - name: app-logs
+#     emptyDir: {}
+#   - name: promtail-config
+#     configMap:
+#       name: promtail-config
 
 envFrom:
   secrets:
@@ -66,38 +71,45 @@ configMaps:
       ---
       server:
         port: 8081
+
       spring:
+        application:
+          name: "muffin"
         datasource:
           url: jdbc:postgresql://host.minikube.internal:5432/muffin_wallet
           username: muffin-wallet
+          password: muffin-wallet
+
+      logging:
+        pattern:
+          level: "%5p [%X{traceId:-},%X{spanId:-}]"
+        file:
+          name: logs/app.log
+
       currency:
         service:
           url: http://muffin-currency:8083/rate
+          
       management:
+        tracing:
+          propagation:
+            type: w3c
+          sampling:
+            probability: 1.0 # Sample 100% of traces for demo
+        zipkin:
+          tracing:
+            endpoint: "http://zipkin.monitoring.svc.cluster.local:9411/api/v2/spans" # Zipkin's v2 API
         endpoints:
           web:
             exposure:
-              include: health, info, prometheus, metrics
+              include: '*'
         endpoint:
           health:
             probes:
               enabled: true
             show-details: always
-        metrics:
-          export:
-            prometheus:
-              enabled: true
-          distribution:
-            percentiles-histogram:
-              http.server.requests: true
-            sla:
-              http.server.requests: 100ms, 200ms, 500ms, 1s, 2s
-          web:
-            server:
-              request:
-                autotime:
-                  enabled: true
-                  percentiles: 0.5, 0.95, 0.99
+
+      management.metrics.distribution.percentiles-histogram.http.server.requests: true
 
 metrics:
   enabled: true
@@ -107,10 +119,10 @@ metrics:
     path: /actuator/prometheus
 
 ingress:
-  enabled: true
-  className: "nginx"
-  hosts:
-    - host: muffin-wallet.local
-      paths:
-        - path: /
-          pathType: Prefix
+  enabled: false
+  # className: "nginx"
+  # hosts:
+  #   - host: muffin-wallet.local
+  #     paths:
+  #       - path: /
+  #         pathType: Prefix

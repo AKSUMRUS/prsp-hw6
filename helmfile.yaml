@@ -1,5 +1,49 @@
+repositories:
+  - name: grafana
+    url: https://grafana.github.io/helm-charts
+  - name: openzipkin
+    url: https://openzipkin.github.io/zipkin-helm
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
 
-releases:
+helmDefaults:
+  createNamespace: true
+
+releases:  
+  - name: loki
+    namespace: monitoring
+    chart: grafana/loki
+    version: 6.51.0
+    values:
+      - values/loki.yaml
+    labels:
+      component: monitoring
+  
+  # - name: promtail
+  #   namespace: monitoring
+  #   chart: grafana/promtail
+  #   version: 6.17.1
+  #   values:
+  #     - values/promtail.yaml
+  #   labels:
+  #     component: monitoring
+
+  - name: zipkin
+    chart: openzipkin/zipkin
+    version: 0.4.0
+    namespace: monitoring
+    values:
+      - values/zipkin.yaml 
+
+  - name: grafana
+    namespace: monitoring
+    chart: grafana/grafana
+    version: 10.5.15
+    values:
+      - values/grafana.yaml
+    labels:
+      component: monitoring
+
   - name: muffin-currency
     namespace: muffin
     createNamespace: true

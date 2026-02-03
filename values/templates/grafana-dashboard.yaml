@@ -1,0 +1,243 @@
+# grafana-dashboards-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "true"
+data:
+  dashboard.json: |
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": 1,
+      "links": [
+        {
+          "asDropdown": false,
+          "icon": "external link",
+          "includeVars": false,
+          "keepTime": false,
+          "tags": [],
+          "targetBlank": false,
+          "title": "New link",
+          "tooltip": "",
+          "type": "dashboards",
+          "url": ""
+        }
+      ],
+      "panels": [
+        {
+          "datasource": {
+            "type": "zipkin",
+            "uid": "P92163275D6A014C9"
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 3,
+          "options": {
+            "spanFilters": {
+              "criticalPathOnly": false,
+              "matchesOnly": false,
+              "serviceNameOperator": "=",
+              "spanNameOperator": "=",
+              "tags": [
+                {
+                  "id": "ae1083aa-efe",
+                  "operator": "="
+                }
+              ]
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "zipkin",
+                "uid": "P92163275D6A014C9"
+              },
+              "query": "${traceId}",
+              "queryType": "traceID",
+              "refId": "A"
+            }
+          ],
+          "title": "trace",
+          "type": "traces"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P8E80F9AEF21F6940"
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 13,
+            "w": 24,
+            "x": 0,
+            "y": 7
+          },
+          "id": 1,
+          "options": {
+            "dedupStrategy": "none",
+            "enableInfiniteScrolling": false,
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showControls": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "P8E80F9AEF21F6940"
+              },
+              "direction": "backward",
+              "editorMode": "builder",
+              "expr": "{logLevel=\"$logLevel\"} |= ``",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "logLevel",
+          "type": "logs"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P8E80F9AEF21F6940"
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 20
+          },
+          "id": 2,
+          "options": {
+            "dedupStrategy": "none",
+            "enableInfiniteScrolling": false,
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showControls": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "syntaxHighlighting": true,
+            "wrapLogMessage": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "direction": "backward",
+              "editorMode": "builder",
+              "expr": "{logLevel=\"$logLevel\", traceId=\"$traceId\"} |= ``",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "logLevel + traceId",
+          "type": "logs"
+        }
+      ],
+      "preload": false,
+      "schemaVersion": 42,
+      "tags": [],
+      "templating": {
+        "list": [
+          {
+            "current": {
+              "text": "0508c5c3020c815864a843ce05d819af",
+              "value": "0508c5c3020c815864a843ce05d819af"
+            },
+            "definition": "",
+            "label": "traceId",
+            "name": "traceId",
+            "options": [],
+            "query": {
+              "label": "traceId",
+              "refId": "LokiVariableQueryEditor-VariableQuery",
+              "stream": "",
+              "type": 1
+            },
+            "refresh": 1,
+            "regex": "",
+            "type": "query"
+          },
+          {
+            "current": {
+              "text": "INFO",
+              "value": "INFO"
+            },
+            "label": "logLevel",
+            "name": "logLevel",
+            "options": [
+              {
+                "selected": true,
+                "text": "INFO",
+                "value": "INFO"
+              },
+              {
+                "selected": false,
+                "text": "DEBUG",
+                "value": "DEBUG"
+              },
+              {
+                "selected": false,
+                "text": "WARN",
+                "value": "WARN"
+              },
+              {
+                "selected": false,
+                "text": "ERROR",
+                "value": "ERROR"
+              }
+            ],
+            "query": "INFO, DEBUG, WARN, ERROR",
+            "type": "custom"
+          }
+        ]
+      },
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "lobLevel + traceId",
+      "uid": "ad2vnm5",
+      "version": 1
+    }

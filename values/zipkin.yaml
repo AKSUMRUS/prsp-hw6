@@ -1,0 +1,27 @@
+# Zipkin values
+image:
+  tag: 2.24.3
+
+probePath: /health
+
+searchEnabled: true
+
+query:
+  enabled: true
+  lookback: 86400000
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+service:
+  type: ClusterIP
+  port: 9411
+
+persistence:
+  enabled: true
+  size: 10Gi

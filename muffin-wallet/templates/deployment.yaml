@@ -17,18 +17,29 @@ spec:
     spec:
       serviceAccountName: {{ .Values.serviceAccount.name | default (include "muffin-wallet.resource-name" .) }}
       volumes:
-        - name: {{ .Values.volume.name }}
+        # Application config volume
+        - name: application-config-volume
           configMap:
-            name: {{ .Values.volume.configMapName }}
+            name: {{ .Values.configMaps.application.name }}
+        # Logs volume for promtail
+        - name: app-logs
+          emptyDir: {}
+        # Promtail config volume
+        - name: promtail-config
+          configMap:
+            name: promtail-config
       containers:
+      # Main application container
       - name: {{ .Values.appLabel }}
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.containerPort }}
         volumeMounts:
-          - name: {{ .Values.volume.name }}
-            mountPath: {{ .Values.volume.mountPath }}
+          - name: application-config-volume
+            mountPath: /app/config
+          - name: app-logs
+            mountPath: /logs
         envFrom:
           {{- range .Values.envFrom.secrets }}
           - secretRef:
@@ -40,3 +51,14 @@ spec:
           {{- end }}
         {{ include "muffin-wallet.liveness" . | nindent 8 }}
         {{ include "muffin-wallet.readiness" . | nindent 8 }}
+      # Promtail sidecar container
+      - name: promtail
+        image: grafana/promtail:latest
+        args:
+          - -config.file=/etc/promtail/promtail.yaml
+        volumeMounts:
+          - name: app-logs
+            mountPath: /logs
+          - name: promtail-config
+            mountPath: /etc/promtail/promtail.yaml
+            subPath: promtail.yaml

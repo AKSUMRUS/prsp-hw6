@@ -1,0 +1,59 @@
+# # Loki values
+loki:
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: 'filesystem'
+  schemaConfig:
+    configs:
+      - from: 2020-10-24
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+  auth_enabled: false
+
+deploymentMode: SingleBinary<->SimpleScalable
+
+singleBinary:
+  replicas: 1
+  persistence:
+    enabled: true
+    size: 2Gi
+
+simpleScalable:
+  replicas: 0
+  persistence:
+    enabled: false
+
+gateway:
+  enabled: false
+
+monitoring:
+  dashboards:
+    enabled: false
+  alerts:
+    enabled: false
+  rules:
+    enabled: false
+  serviceMonitor:
+    enabled: false
+
+service:
+  type: NodePort
+  ports:
+    http: 3100
+    grpc: 9095
+
+ingress:
+  enabled: false
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
