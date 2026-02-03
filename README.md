@@ -123,6 +123,12 @@ curl -s http://localhost:8080/rate?from=PLAIN&to=CHOKOLATE
 kill $PF_PID
 ```
 
+### Проверка мониторинга
+
+```bash
+kubectl get pods -n monitoring
+```
+
 ## Проверка данных
 
 ### Запуск grafana
